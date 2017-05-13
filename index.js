@@ -2,10 +2,13 @@
 import express from 'express';
 import path from 'path';
 
-// import router from './routes';
+import router from './routes';
 
 const app = express();
-const staticPath = path.resolve(__dirname, 'routes');
+const staticPath = path.resolve(__dirname, 'public');
+
+app.use(express.static(staticPath));
+app.use('/', router);
 
 
 app.get('/', function (req, res) {
@@ -14,5 +17,5 @@ app.get('/', function (req, res) {
 })
 
 app.listen(4000, function () {
-  console.log('Example app listening on port 3000!')
+  console.log('Example app listening on port 4000!')
 })
