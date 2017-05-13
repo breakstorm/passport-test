@@ -1,6 +1,8 @@
 // const express = require('express')
 import express from 'express';
 import path from 'path';
+import bodyParser from 'body-parser';
+import cors from 'cors';
 
 import router from './routes';
 
@@ -8,8 +10,17 @@ const app = express();
 const staticPath = path.resolve(__dirname, 'public');
 
 app.use(express.static(staticPath));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended:true}));
 app.use('/', router);
-
+app.use(cors({
+	origin:'http://127.0.0.1:4000',
+	optionsSuccessStatus: 200
+},{
+	origin:'http://localhost:4000',
+	optionsSuccessStatus: 200
+}
+));
 
 app.get('/', function (req, res) {
 	console.log(staticPath);

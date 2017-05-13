@@ -16,7 +16,12 @@ router.get('/', function(req,res){
 router.post('/sign', function(req,res){
 	console.log("route /route/sign path");
 	console.log(req.body);
-	res.send("post response");
+
+	var responseData = {
+		'result': 'ok',
+		'email': req.body
+	}
+	res.send(responseData);
 })
 
 export default router;
