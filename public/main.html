@@ -5,7 +5,7 @@
 </head>
 <body>
 	<form action="/sign" method="POST">
-		ID : <input type="text" name="username"><br />
+		ID : <input type="text" name="email"><br />
 		PW : <input type="password" name="password"><br />
 		<input type="submit" name="submit">
 	</form>
@@ -22,9 +22,9 @@
 
 	<script>
 		document.querySelector(".ajaxsend").addEventListener('click', function(){
-			var sendData = [];
-			sendData.push(document.forms[0].elements[0].value);
-			sendData.push(document.forms[0].elements[1].value);
+			var sendData = {};
+			sendData.email = document.forms[0].elements[0].value;
+			sendData.pw = document.forms[0].elements[1].value;
 			sendAjax('http://localhost:4000/sign', sendData);
 		});
 
