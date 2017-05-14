@@ -34,17 +34,11 @@ router.post('/sign', function(req,res){
 
 	var email = req.body.email;
 	var responseData = {};
-	//조회문
-	// var query = connection.query('select name, email, password from Users where name="' + email + '"', function(err,rows){
-	// 	if(err) throw err;
-	// 	if(rows[0]){
-	// 		console.log(rows[0]);
-	// 	} else{
-	// 		console.log('none : '+rows[0]);
-	// 	}
-	// })
+	var reg = /(^[-!#$%&'*+./0-9=?A-Z^_a-z{|}~]+)@[-!#$%&'*+/0-9=?A-Z^_a-z{|}~]+.[-!#$%&'*+./0-9=?A-Z^_a-z{|}~]+$/;
+	
+
 	//삽입문
-	var insertQuery = "insert into Users (name, email, password) set ?";
+	var insertQuery = "insert into Users set ?";
 	var insertData = {
 		name: email,
 		email: email,
@@ -54,7 +48,36 @@ router.post('/sign', function(req,res){
 		if(err) throw err;
 		console.log("ok db insert")
 	})
+
+	//삽입 예시
+	// var insertQuery = "insert into Users (name, email, password) values('ccc', 'ccc@mail.com', 'ccc')";
+	// var insertData = connection.query(insertQuery, function(err, rows){
+	// 	if(err) throw err;
+	// 	console.log("ok db insert");
+	// })
 	// res.send(responseData);
+})
+
+router.post('/select', function(req,res){
+	console.log("route /route/select path");
+
+	var email = req.body.email;
+	var responseData = {};
+	var reg = /(^[-!#$%&'*+./0-9=?A-Z^_a-z{|}~]+)@[-!#$%&'*+/0-9=?A-Z^_a-z{|}~]+.[-!#$%&'*+./0-9=?A-Z^_a-z{|}~]+$/;
+
+	//조회문
+	var selectQuery = "select name, email, password from Users where name=?";
+	var selectData = {
+		email: email
+	}
+	var query = connection.query(selectQuery, selectData, function(err,rows){
+		if(err) throw err;
+		if(rows[0]){
+			console.log(rows[0]);
+		} else{
+			console.log('none : '+rows[0]);
+		}
+	})
 })
 
 export default router;
