@@ -19,8 +19,10 @@
   "homepage": "https://github.com/breakstorm/passport-test#readme",
   "dependencies": {
     "body-parser": "^1.17.1",
+    "connect-flash": "^0.1.1",
     "cors": "^2.8.3",
     "express": "^4.15.2",
+    "express-session": "^1.15.2",
     "mysql": "^2.13.0",
     "passport": "^0.3.2",
     "passport-local": "^1.0.0"

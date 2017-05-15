@@ -1,5 +1,8 @@
 import express from 'express';
 import mysql from 'mysql';
+import passport from 'passport';
+// import { LocalStrategy } from 'passport-local';
+const LocalStrategy = require('passport-local').Strategy;
 
 const app = express();
 const router = express.Router();
@@ -13,7 +16,51 @@ const connection = mysql.createConnection({
 
 
 app.use(express.static('/Users/gimhwigyeom/Documents/passport-test/public'));
-connection.connect();
+
+passport.serializeUser(function(user, done) {
+  console.log('passport success');
+  console.log(user);
+  done(null, user);
+});
+
+passport.deserializeUser(function(id, done) {
+  // User.findById(id, function(err, user) {
+  //   done(err, user);
+  // });
+  console.log('passport session get id : ', id);
+  done(null, id);
+});
+
+passport.use('login', new LocalStrategy({
+	usernameField: 'email',
+	passwordField: 'password',
+	passReqToCallback: true
+}, function(req, email, password, done){
+	console.log('local-join callback called');
+	console.log(email, password, req.body);
+
+	const query = connection.query('select * from Users where email=?', [email], function(err,rows){
+		if(err) return done(err);
+		
+		var reg = /(^[-!#$%&'*+./0-9=?A-Z^_a-z{|}~]+)@[-!#$%&'*+/0-9=?A-Z^_a-z{|}~]+.[-!#$%&'*+./0-9=?A-Z^_a-z{|}~]+$/;
+		if(rows.length){
+			console.log('existed user');
+			return done(null, false, {message: 'your email is already used'})
+		} else{
+			const sql = {
+				email: email,
+				name: email.replace(reg, '$1'),
+				password: password
+			};
+			const query = connection.query('insert into Users set ?', sql, function(err, rows){
+				if(err) throw err;
+				console.log(rows);
+				return done(null, {email: sql.email, name: sql.name, id: rows.insertId, message: 'ok'})	
+			})
+			
+		}
+	})
+}))
 
 router.get('/', function(req,res){
 	console.log("route /router path");
@@ -22,51 +69,56 @@ router.get('/', function(req,res){
 	// res.sendFile('main.html');
 	res.sendFile("/Users/gimhwigyeom/Documents/passport-test/public/main.html");
 })
+router.get('/success', function(req,res){
+	console.log("route /router/success path");
+	console.log(req.user);
+
+	res.sendFile("/Users/gimhwigyeom/Documents/passport-test/public/success.html");
+})
+router.get('/fail', function(req,res){
+	console.log("route /router/fail path");
+	var msg;
+	var errMsg = req.flash('error');
+	if(errMsg) msg = errMsg;
+	console.log(msg);
+	// console.log(__dirname);
+	// res.send("route /router path");
+	// res.sendFile('main.html');
+	res.sendFile("/Users/gimhwigyeom/Documents/passport-test/public/fail.html");
+})
 
 router.post('/sign', function(req,res){
 	console.log("route /route/sign path");
 	console.log(req.body);
 
-	var responseData = {
-		'result': 'ok',
-		'email': req.body
-	}
-
-	var email = req.body.email;
-	var responseData = {};
 	var reg = /(^[-!#$%&'*+./0-9=?A-Z^_a-z{|}~]+)@[-!#$%&'*+/0-9=?A-Z^_a-z{|}~]+.[-!#$%&'*+./0-9=?A-Z^_a-z{|}~]+$/;
-	
+	var email = req.body.email;
+	var name = email.replace(reg, '$1');
+	var password = req.body.password;
 
 	//삽입문
 	var insertQuery = "insert into Users set ?";
 	var insertData = {
-		name: email,
+		name: name,
 		email: email,
-		password: email
+		password: password
 	}
 	var query = connection.query(insertQuery, insertData, function(err, rows){
 		if(err) throw err;
 		console.log("ok db insert")
 	})
 
-	//삽입 예시
-	// var insertQuery = "insert into Users (name, email, password) values('ccc', 'ccc@mail.com', 'ccc')";
-	// var insertData = connection.query(insertQuery, function(err, rows){
-	// 	if(err) throw err;
-	// 	console.log("ok db insert");
-	// })
-	// res.send(responseData);
 })
 
 router.post('/select', function(req,res){
 	console.log("route /route/select path");
 
-	var email = req.body.email;
-	var responseData = {};
 	var reg = /(^[-!#$%&'*+./0-9=?A-Z^_a-z{|}~]+)@[-!#$%&'*+/0-9=?A-Z^_a-z{|}~]+.[-!#$%&'*+./0-9=?A-Z^_a-z{|}~]+$/;
+	var email = req.body.email;
+	// var name = email.replace(reg, '$1');
 
 	//조회문
-	var selectQuery = "select name, email, password from Users where name=?";
+	var selectQuery = "select name, email, password from Users where email=?";
 	var selectData = {
 		email: email
 	}
@@ -79,5 +131,16 @@ router.post('/select', function(req,res){
 		}
 	})
 })
+
+router.post('/login', passport.authenticate('login',{
+	successRedirect: '/success',
+	failureRedirect: '/fail',
+	failureFlash: true
+})
+)
+
+// router.post('/login', function(req,res){
+// 	console.log("route /route/login path");
+// })
 
 export default router;

@@ -5,6 +5,11 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import mysql from 'mysql';
 import router from './routes';
+import passport from 'passport';
+import session from 'express-session';
+import flash from 'connect-flash';
+// import { LocalStrategy } from 'passport-local';
+const LocalStrategy = require('passport-local').Strategy;
 
 
 const app = express();
@@ -18,6 +23,14 @@ const connection = mysql.createConnection({
 })
 
 connection.connect();
+app.use(session({
+	secret: 'keyboard',
+	resave: false,
+	saveUninitialized: true
+}))
+app.use(passport.initialize())
+app.use(passport.session())
+app.use(flash())
 app.use(express.static(staticPath));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));

@@ -4,13 +4,14 @@
 	<title>main page test</title>
 </head>
 <body>
-	<form action="/sign" method="POST">
+	<form action="/login" method="POST">
 		ID : <input type="text" name="email"><br />
 		PW : <input type="password" name="password"><br />
 		<input type="submit" name="submit">
 	</form>
 	<button class="ajaxsend">입력</button>
 	<button class="ajaxselect">조회</button>
+	<button class="ajaxlogin">로그인</button>
 
 	<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
 	tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
@@ -46,6 +47,25 @@
 			var sendData = {};
 			sendData.email = document.forms[0].elements[0].value;
 			sendSelect('http://localhost:4000/select', sendData)
+		})
+
+		function sendSelect(url, data){
+			var temp = JSON.stringify(data);
+			console.log(temp);
+			var xhr = new XMLHttpRequest();
+			xhr.open('POST', url);
+			xhr.setRequestHeader("Content-Type", "application/json");
+			xhr.send(temp);
+
+			xhr.addEventListener("load", function(){
+				console.log(xhr.responseText);
+			})
+		}
+
+		document.querySelector(".ajaxlogin").addEventListener('click', function(){
+			var sendData = {};
+			sendData.email = document.forms[0].elements[0].value;
+			sendSelect('http://localhost:4000/login', sendData)
 		})
 
 		function sendSelect(url, data){
