@@ -61,6 +61,24 @@ passport.use('login', new LocalStrategy({
 		}
 	})
 }))
+passport.use('login2', new LocalStrategy({
+	usernameField: 'email',
+	passwordField: 'password',
+	passReqToCallback: true
+}, function(req, email, password, done){
+	console.log('local-join ajax callback');
+
+	var query = connection.query('select * from user where email=?', [email], function(err, rows){
+		if(err) return done(err);
+
+		if(rows.length){
+			return done(null, {'email': email, 'id': rows[0].UID});
+		} else{
+			return done(null, false, {'message': 'you ajax login is wrong'})
+		}
+	})
+}
+))
 
 router.get('/', function(req,res){
 	console.log("route /router path");
@@ -139,8 +157,18 @@ router.post('/login', passport.authenticate('login',{
 })
 )
 
-// router.post('/login', function(req,res){
-// 	console.log("route /route/login path");
-// })
+router.post('/ajaxlogin', function(req, res, next){
+	console.log("ajaxlogin path");
+	passport.authenticate('login2', function(err, user, info){
+		console.log(user);
+		if(err) res.status(500).json(err);
+		if(!user) return res.status(401).json(info.message);
+
+		req.logIn(user, function(err){
+			if(err) { return next(err); }
+			return res.json(user);
+		});
+	})(req,res,next);
+})
 
 export default router;

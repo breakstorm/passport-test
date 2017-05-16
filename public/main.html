@@ -46,6 +46,7 @@
 		document.querySelector(".ajaxselect").addEventListener('click', function(){
 			var sendData = {};
 			sendData.email = document.forms[0].elements[0].value;
+			sendData.pw = document.forms[0].elements[1].value;
 			sendSelect('http://localhost:4000/select', sendData)
 		})
 
@@ -65,7 +66,8 @@
 		document.querySelector(".ajaxlogin").addEventListener('click', function(){
 			var sendData = {};
 			sendData.email = document.forms[0].elements[0].value;
-			sendSelect('http://localhost:4000/login', sendData)
+			sendData.pw = document.forms[0].elements[1].value;
+			sendSelect('http://localhost:4000/ajaxlogin', sendData)
 		})
 
 		function sendSelect(url, data){
